@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cyber Defender Kids</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Arial,sans-serif;background:#061126;color:#fff}
+#app{width:100vw;height:100vh;overflow:hidden;background:
+radial-gradient(circle at 10% 20%,#164e6380,transparent 28%),
+radial-gradient(circle at 90% 80%,#4c1d9580,transparent 30%),
+linear-gradient(135deg,#030a19,#0b1d42 55%,#11103a)}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#030a18dd;border-bottom:1px solid #ffffff1c}
+.brand{font-size:21px;font-weight:900;color:#67e8f9}.brand b{color:#c4b5fd}
+.stats{display:flex;gap:9px}.stat{padding:8px 13px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff1c;font-size:14px;font-weight:800}
+main{height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:10px}
+.panel{width:min(1000px,94vw);height:min(610px,calc(100vh - 84px));min-height:430px;border-radius:24px;background:#091a37f5;border:1px solid #ffffff20;box-shadow:0 20px 70px #0009;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative}
+.emoji{font-size:56px;line-height:1;margin-bottom:5px}
+h1{font-size:clamp(34px,5vw,58px);margin:6px 0;text-align:center}
+h2{font-size:30px;margin:4px 0;text-align:center}
+.desc{font-size:16px;line-height:1.45;color:#cbd5e1;text-align:center;max-width:720px}
+button{border:0;color:white;font-weight:900;cursor:pointer;border-radius:13px;padding:13px 20px;font-size:17px;background:linear-gradient(135deg,#06b6d4,#7c3aed);box-shadow:0 7px 18px #0006}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.progress{width:min(650px,85%);height:8px;border-radius:20px;background:#ffffff12;margin:8px 0 15px;overflow:hidden}
+.progress i{display:block;height:100%;width:20%;background:linear-gradient(90deg,#22d3ee,#a78bfa)}
+.q{font-size:clamp(20px,2.7vw,28px);font-weight:900;line-height:1.25;text-align:center;max-width:850px;margin-bottom:15px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(760px,90%)}
+.option{min-height:66px;background:#102951;border:2px solid #ffffff18}
+.option.good{background:#087f5b;border-color:#34d399}
+.option.bad{background:#8b2635;border-color:#fb7185}
+.feedback{height:42px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:900;max-width:800px}
+.next{display:none}
+.levelPoints{font-size:22px;font-weight:900;color:#67e8f9;margin:4px 0}
+.finalScore{font-size:55px;font-weight:900;color:#67e8f9;margin:5px}
+.tip{position:absolute;bottom:10px;color:#8196bb;font-size:11px;text-align:center}
+@media(max-width:700px){
+header{height:56px;padding:0 10px}.brand{font-size:16px}.stat{font-size:12px;padding:7px 9px}
+main{height:calc(100vh - 56px);padding:6px}.panel{height:calc(100vh - 68px);min-height:0;padding:12px;border-radius:18px}
+.emoji{font-size:43px}.q{font-size:18px}.options{grid-template-columns:1fr;width:96%}.option{min-height:54px;padding:9px;font-size:15px}.feedback{height:34px;font-size:14px}.desc{font-size:14px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+<div class="brand">🛡️ CYBER <b>DEFENDER KIDS</b></div>
+<div class="stats"><div class="stat">⭐ <span id="score">0</span></div><div class="stat">LEVEL <span id="levelNo">1</span>/<span id="totalLevels">5</span></div></div>
+</header>
+<main><section class="panel" id="panel"></section></main>
+</div>
+<script>
+// ========== 25 CYBER SAFETY MISSIONS ==========
+const missions = [
+  // Original 5
+  {q:"You get a message: “You won a FREE phone! Click now!” What should you do?",
+   a:["Click it! 📱","Ignore it & tell an adult 🛡️"],good:1,
+   ok:"Excellent! Free prize messages can be tricks.",bad:"Oops! Unknown prize links can be dangerous."},
+  {q:"Which password is safer?",
+   a:["12345678 🔓","Blue!Tiger7#Moon 🔐"],good:1,
+   ok:"Great! Long, unique passwords are stronger.",bad:"Try again! Simple passwords are easy to guess."},
+  {q:"A stranger online asks for your home address. What do you do?",
+   a:["Keep it private & tell an adult 🛡️","Send the address 🏠"],good:0,
+   ok:"Perfect! Keep personal information private.",bad:"Never give your home address to online strangers."},
+  {q:"A scary pop-up says: “YOUR PC HAS A VIRUS! CLICK NOW!”",
+   a:["Close it & ask an adult 🛡️","Click the big button ⚠️"],good:0,
+   ok:"Correct! Scary pop-ups can be fake tricks.",bad:"Don't click scary pop-ups. Ask a trusted adult."},
+  {q:"A friend sends an unexpected file. What is safest?",
+   a:["Open it immediately 📂","Don't open it; check first 🛡️"],good:1,
+   ok:"Amazing! Cyber Defender! Think before opening files.",bad:"Unexpected files may be unsafe. Check first."},
+
+  // NEW 20 MISSIONS
+  {q:"You receive an email from your 'bank' asking for your password. What do you do?",
+   a:["Reply with password 💳","Do not reply – it's a scam 🛡️"],good:1,
+   ok:"Right! Banks never ask for passwords via email.",bad:"Never share your password, even if the email looks real."},
+  {q:"What should you do if someone online asks for your school name?",
+   a:["Tell them – it's just school 🏫","Keep it private and tell an adult 🛡️"],good:1,
+   ok:"Great! Don't share details about your school or location.",bad:"Sharing your school can help strangers find you."},
+  {q:"A new game asks for permission to access your camera. Should you allow?",
+   a:["Allow – it's fun 📸","Deny unless you trust it 🛡️"],good:1,
+   ok:"Smart! Only give camera access to apps you really trust.",bad:"Malicious apps can spy on you through camera."},
+  {q:"Your friend shares a 'secret trick' to get free in-game currency by entering your password. Do you?",
+   a:["Try it – free coins! 🪙","No – it's a trick 🛡️"],good:1,
+   ok:"Excellent! Never share your password for free stuff.",bad:"That's a common scam to steal your account."},
+  {q:"You see a post: 'Click here to see who viewed your profile!' What's safe?",
+   a:["Click to find out 👀","Ignore – it's probably fake 🛡️"],good:1,
+   ok:"Perfect! Such clickbait often leads to phishing.",bad:"These tricks are used to steal your login info."},
+  {q:"Which is the best way to create a strong password?",
+   a:["Use your birthday 🎂","Use a mix of letters, numbers, and symbols 🔐"],good:1,
+   ok:"Yes! A mix makes it hard to guess.",bad:"Birthdays are easy to find online."},
+  {q:"A stranger asks for your phone number to 'help you' in a game. What do you do?",
+   a:["Give it – they seem nice 😊","Don't give it – tell an adult 🛡️"],good:1,
+   ok:"Great! Keep your phone number private.",bad:"Strangers can misuse your phone number."},
+  {q:"You download a free wallpaper from an unknown site. It asks to install an app. What should you do?",
+   a:["Install it – it's just a wallpaper 🖼️","Cancel and close the site 🛡️"],good:1,
+   ok:"Right! Unknown downloads can contain viruses.",bad:"Never install apps from untrusted sites."},
+  {q:"Your friend posts a photo with your name and school. What do you think?",
+   a:["It's fine – we're friends 😎","Ask them to remove it – privacy matters 🛡️"],good:1,
+   ok:"Good thinking! You should control what's shared about you.",bad:"Personal info online can be misused."},
+  {q:"You get a friend request from someone you don't know. What should you do?",
+   a:["Accept – more friends! 🫂","Decline and block 🛡️"],good:1,
+   ok:"Smart! Only accept people you know in real life.",bad:"Strangers online may not be who they say they are."},
+  {q:"What should you do if a website asks for your full name and address before letting you play?",
+   a:["Fill it in – I want to play 🎮","Leave the site and ask an adult 🛡️"],good:1,
+   ok:"Correct! Never give personal info to unknown sites.",bad:"That data could be sold or misused."},
+  {q:"A message says: 'You've been chosen for a prize – send $10 to claim it.' What do you do?",
+   a:["Pay $10 – it's a prize 💵","Ignore – it's a scam 🛡️"],good:1,
+   ok:"Excellent! Real prizes never ask for money.",bad:"This is a classic advance-fee scam."},
+  {q:"Which is safer: using the same password everywhere, or different ones?",
+   a:["Same – easier to remember 😓","Different passwords for each account 🛡️"],good:1,
+   ok:"Yes! If one gets hacked, others stay safe.",bad:"Same password puts all your accounts at risk."},
+  {q:"Your cousin shares a link to a 'free Robux generator'. Should you click?",
+   a:["Yes – free Robux! 🤑","No – that's a scam 🛡️"],good:1,
+   ok:"Great! There are no free generators; they steal accounts.",bad:"Such links are designed to hack you."},
+  {q:"What do you do if a game asks for your parent's credit card info to verify age?",
+   a:["Enter it – it's for age verification 💳","Ask an adult – never enter without permission 🛡️"],good:1,
+   ok:"Perfect! Always involve a trusted adult for financial info.",bad:"Never give credit card details without adult consent."},
+  {q:"You find a USB stick on the playground. What should you do?",
+   a:["Plug it into your computer 🔌","Give it to a teacher or adult 🛡️"],good:1,
+   ok:"Smart! Unknown USBs can contain malware.",bad:"Never plug unknown devices into your computer."},
+  {q:"A pop-up says your antivirus expired and asks for payment. What's safe?",
+   a:["Pay to renew 💳","Close it and check with a parent 🛡️"],good:1,
+   ok:"Correct! Scareware is common; verify with a trusted adult.",bad:"Fake alerts try to steal your money."},
+  {q:"You share a fun video online. A stranger comments asking for your age. What do you reply?",
+   a:["Tell them – it's just age 🗓️","Do not reply – keep personal info private 🛡️"],good:1,
+   ok:"Great! Never share age or personal details with strangers.",bad:"Age can be used to identify or target you."},
+  {q:"You receive a message from a friend saying they are in trouble and need money. What should you do?",
+   a:["Send money quickly 😰","Call your friend to verify first 📞"],good:1,
+   ok:"Excellent! Always verify urgent requests through another channel.",bad:"Hackers often steal accounts and send fake pleas."},
+  {q:"Which of these is a sign of a fake website?",
+   a:["It has a padlock icon 🔒","It has spelling mistakes and odd URLs 🛡️"],good:1,
+   ok:"Right! Misspellings and unusual URLs are red flags.",bad:"Padlock doesn't guarantee safety; always check the URL."},
+  {q:"You are about to post a photo with your school uniform and location tag. What should you think?",
+   a:["Post it – everyone does it 📸","Remove location tag and keep it private 🛡️"],good:1,
+   ok:"Smart! Location tags reveal where you are, which can be risky.",bad:"Sharing location can put you in danger."}
+];
+
+// ========== GAME ENGINE ==========
+let current = 0, total = 0, levelScore = 0, answered = false;
+
+// Update total levels display
+document.getElementById('totalLevels').textContent = missions.length;
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.9; u.pitch = 1.08; u.volume = 1;
+  const voices = speechSynthesis.getVoices();
+  const v = voices.find(x => /en-US/i.test(x.lang)) || voices.find(x => /^en/i.test(x.lang));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+
+function tone(kind) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ac = new AC(), o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    const seq = kind === "good" ? [[523,0],[659,.12],[784,.24]] : kind === "bad" ? [[180,0],[120,.15]] : [[440,0],[660,.12]];
+    o.type = "sine";
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    seq.forEach(([f,t]) => o.frequency.setValueAtTime(f, ac.currentTime + t));
+    g.gain.exponentialRampToValueAtTime(0.16, ac.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.42);
+    o.start(); o.stop(ac.currentTime + 0.44);
+  } catch (e) {}
+}
+
+function update() {
+  document.getElementById('score').textContent = total;
+  document.getElementById('levelNo').textContent = Math.min(current + 1, missions.length);
+}
+
+function home() {
+  document.getElementById('panel').innerHTML = `
+    <div class="emoji">🤖🛡️</div>
+    <h1>Cyber Defender Kids</h1>
+    <div class="desc">Complete <strong>${missions.length}</strong> cybersecurity missions. Listen to the AI guide, choose the safe answer, earn points, and become a true Cyber Defender!</div>
+    <div class="actions">
+      <button onclick="startGame()">🚀 START GAME</button>
+      <button onclick="speak('Welcome, Cyber Defender! Click Start Game to begin your safety missions.')">🔊 AI VOICE</button>
+    </div>
+    <div class="tip">💡 Rule: Stop • Think • Ask a trusted adult</div>
+  `;
+}
+
+function startGame() {
+  current = 0;
+  total = 0;
+  update();
+  showMission();
+}
+
+function showMission() {
+  answered = false;
+  levelScore = 0;
+  update();
+  const m = missions[current];
+  const progressPercent = ((current + 1) / missions.length) * 100;
+  document.getElementById('panel').innerHTML = `
+    <div class="emoji">🧑‍💻🔐</div>
+    <h2>MISSION ${current + 1}</h2>
+    <div class="progress"><i style="width:${progressPercent}%"></i></div>
+    <div class="q">${m.q}</div>
+    <div class="options">
+      <button class="option" onclick="answer(0)">A. ${m.a[0]}</button>
+      <button class="option" onclick="answer(1)">B. ${m.a[1]}</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next" id="next" onclick="nextMission()"></button>
+    <div class="tip">Mission points are shown after you answer.</div>
+  `;
+  speak("Mission " + (current + 1) + ". " + m.q + " Option A: " + m.a[0] + ". Option B: " + m.a[1]);
+}
+
+function answer(choice) {
+  if (answered) return;
+  answered = true;
+  const m = missions[current];
+  const buttons = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+  buttons[m.good].classList.add('good');
+  if (choice !== m.good) buttons[choice].classList.add('bad');
+  if (choice === m.good) {
+    levelScore = 100;
+    total += 100;
+    tone('good');
+    fb.innerHTML = '✅ Correct! +100 points';
+    speak('Correct! ' + m.ok + ' You earned one hundred points.');
+  } else {
+    levelScore = 0;
+    tone('bad');
+    fb.innerHTML = '❌ Not quite. +0 points';
+    speak('Not quite. ' + m.bad);
+  }
+  update();
+  const next = document.getElementById('next');
+  next.style.display = 'inline-block';
+  next.textContent = (current === missions.length - 1) ? '🏆 VIEW FINAL SCORE' : 'NEXT LEVEL ➜';
+  setTimeout(() => showLevelResult(m, choice === m.good), 250);
+}
+
+function showLevelResult(m, correct) {
+  const panel = document.getElementById('panel');
+  const q = panel.querySelector('.q');
+  const opts = panel.querySelector('.options');
+  const fb = document.getElementById('feedback');
+  if (q) q.innerHTML = `Level ${current + 1} Complete!`;
+  if (opts) opts.style.display = 'none';
+  if (fb) fb.innerHTML = `<div class="levelPoints">${correct ? '🎉 Level Points: +100' : '💡 Level Points: +0'}</div>`;
+}
+
+function nextMission() {
+  if (current < missions.length - 1) {
+    current++;
+    tone('next');
+    showMission();
+  } else {
+    finalScreen();
+  }
+}
+
+function finalScreen() {
+  tone('good');
+  document.getElementById('panel').innerHTML = `
+    <div class="emoji">🏆🛡️🎉</div>
+    <h1>YOU DID IT!</h1>
+    <div class="finalScore">${total} ⭐</div>
+    <div class="desc">You completed all ${missions.length} Cyber Defender missions! Stay safe online: stop, think, and ask a trusted adult when something feels strange.</div>
+    <div class="actions">
+      <button onclick="startGame()">🔄 PLAY AGAIN</button>
+      <button onclick="speak('Amazing Cyber Defender! You completed all ${missions.length} missions and scored ' + total + ' points. Stay safe online!')">🔊 AI PRAISE</button>
+    </div>
+  `;
+  speak('Amazing Cyber Defender! You completed all ' + missions.length + ' missions and scored ' + total + ' points. Stay safe online!');
+}
+
+home();
+
+// Preload voices (optional)
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
